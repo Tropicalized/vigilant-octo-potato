@@ -6,6 +6,7 @@ SoftwareSerial ser(2, 3); // RX, TX
 #include <HX711.h>
 #include <NewPing.h>
 
+// HCSR04 circuit wiring
 #define TRIGGER_PIN  7
 #define ECHO_PIN     6
 #define MAX_DISTANCE 200
