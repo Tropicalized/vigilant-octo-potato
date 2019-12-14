@@ -16,3 +16,7 @@ UNO D6 -------------> TRIGGER HCSR04
 
 UNO D7 -------------> ECHO HCSR04
 
+UNO, HX711 and HCSR04 to 5V and Negative
+
+ESP8266 VCC to 3.3V and CH_EN to Pull-Up 4.7kΩ resistor.
+
