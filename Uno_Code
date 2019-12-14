@@ -1,0 +1,102 @@
+#include <SoftwareSerial.h>
+//connect 2 to Tx of ESP
+//connect 3 to Rx of ESP
+SoftwareSerial ser(2, 3); // RX, TX
+#include <Wire.h>
+#include <HX711.h>
+#include <NewPing.h>
+
+#define TRIGGER_PIN  7
+#define ECHO_PIN     6
+#define MAX_DISTANCE 200
+
+// HX711 circuit wiring
+const int LOADCELL_DOUT_PIN = 5;
+const int LOADCELL_SCK_PIN = 4;
+ 
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+HX711 scale;
+ 
+void setup() {
+Serial.begin(9600);
+scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN); 
+ser.begin(9600);
+ser.println("AT+RST");
+delay(1000);
+ser.print("AT+CWQAP\r\n");
+delay(2000);
+unsigned char check_connection=0;
+unsigned char times_check=0;
+Serial.println("Connecting to Wifi");
+while(check_connection==0)
+{
+Serial.print("..");
+ser.print("AT+CWJAP=\"Your_WiFi_Name\",\"Your_WifFi_Password\"\r\n");
+ser.setTimeout(5000);
+if(ser.find("WIFI CONNECTED\r\n")==1 )
+{
+Serial.println("WIFI CONNECTED");
+break;
+}
+times_check++;
+if(times_check>3) 
+{
+times_check=0;
+Serial.println("Trying to Reconnect..");
+}
+}
+}
+ 
+void loop() {
+
+  Serial.print("Ping: ");
+  Serial.print(sonar.ping_cm());
+  Serial.println("cm");
+long reading = scale.read();
+  
+   if (scale.is_ready()) {
+    
+    Serial.print("HX711 reading: ");
+    Serial.println(reading);
+    }
+    else {
+    Serial.println("HX711 not found.");
+  }
+ String cmd = "AT+CIPSTART=\"TCP\",\"";
+cmd += "184.106.153.149"; // api.thingspeak.com IP address 
+
+//or thingspeak server name
+cmd += "\",80";
+ser.println(cmd);
+if(ser.find("Error")){
+Serial.println("AT+CIPSTART error");
+return;
+}
+
+String getStr ="GET //update?api_key=YOUR_api_Key&field1=";
+getStr +=String(reading);
+getStr +="&field2=";
+getStr +=String(sonar.ping_cm());
+//getStr +=" 184.106.153.149";//
+// your domain name 
+
+//or thingspeak server name
+getStr += "\r\n\r\n";
+
+// send data length
+cmd = "AT+CIPSEND=";
+cmd += String(getStr.length());
+ser.println(cmd);
+ser.setTimeout(2000);
+if(ser.find(">")){
+ser.print(getStr);
+Serial.println(cmd);
+}
+else{
+ser.println("AT+CIPCLOSE");
+// alert user
+Serial.println("AT+CIPCLOSE");
+}
+Serial.println(getStr);
+delay(30000);
+}
