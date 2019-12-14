@@ -78,7 +78,7 @@ getStr +=String(reading);
 getStr +="&field2=";
 getStr +=String(sonar.ping_cm());
 
-// Your Server or Thingspeak server name
+// Your domain or Thingspeak server name
 //getStr +=" 184.106.153.149";//
 getStr += "\r\n\r\n";
 
