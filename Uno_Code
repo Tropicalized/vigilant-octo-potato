@@ -72,18 +72,17 @@ if(ser.find("Error")){
 Serial.println("AT+CIPSTART error");
 return;
 }
-
+// Compose String
 String getStr ="GET //update?api_key=YOUR_api_Key&field1=";
 getStr +=String(reading);
 getStr +="&field2=";
 getStr +=String(sonar.ping_cm());
-//getStr +=" 184.106.153.149";//
-// your domain name 
 
-//or thingspeak server name
+// Your Server or Thingspeak server name
+//getStr +=" 184.106.153.149";//
 getStr += "\r\n\r\n";
 
-// send data length
+// send data length and print
 cmd = "AT+CIPSEND=";
 cmd += String(getStr.length());
 ser.println(cmd);
@@ -97,6 +96,7 @@ ser.println("AT+CIPCLOSE");
 // alert user
 Serial.println("AT+CIPCLOSE");
 }
+// Reference in Software Serial
 Serial.println(getStr);
 delay(30000);
 }
